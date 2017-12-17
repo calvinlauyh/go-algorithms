@@ -14,7 +14,7 @@ const (
 	QUICKSORT_ORDER_ASC    // sort the list in ascending order
 	QUICKSORT_ORDER_DESC   // sort the list in descending order
 
-	QUICKSORT_PIVOT_DEFAULT = QUICKSORT_PIVOT_MEDIAN_OF_THREE
+	QUICKSORT_PIVOT_DEFAULT = QUICKSORT_PIVOT_LAST
 	QUICKSORT_ORDER_DEFAULT = QUICKSORT_ORDER_ASC
 	QUICKSORT_DEFAULT       = QUICKSORT_PIVOT_DEFAULT | QUICKSORT_ORDER_DEFAULT
 )
@@ -142,16 +142,17 @@ func partition(
 	options int,
 ) (int, error) {
 	pIdx := pickPivot(list, options)
-	pivot := list[pIdx]
-	if pivot == -1 {
+	if pIdx == -1 {
 		return -1, errors.New("Value in list is not supported by the pivot picking method")
 	}
+	pivot := list[pIdx]
 
-	swap(list, 0, pIdx)
+	swap(list, pIdx, len(list)-1)
+	pIdx = len(list) - 1
 	var result int
 	var err error
-	i := 0
-	for j, l := 1, len(list); j < l; j++ {
+	i := -1
+	for j, l := 0, len(list)-1; j < l; j++ {
 		result, err = comparator(list[j], pivot)
 		if err != nil {
 			return -1, err
@@ -167,7 +168,7 @@ func partition(
 	if err != nil {
 		return -1, err
 	}
-	if result < 0 { // list[i] < pivot
+	if result > 0 { // list[i] > pivot
 		swap(list, i, pIdx)
 	}
 
